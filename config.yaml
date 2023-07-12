@@ -1,0 +1,24 @@
+version: "1.0.0"
+env: "local" 
+storage: 
+  driver:   "postgres"
+  user:     "yerda"
+  password: "postgres"
+  host:     "localhost"
+  port:     5432
+  dbname:   "dbauth"
+  sslmode: "disable"
+logfile: "./log/log.txt"
+http: 
+  address: ":8080"
+  timeout: "5s"
+  idle: "15s"
+ratelimiter:
+  maxreq: 20
+  expiration: "30s"
+jwt:
+  secret: "reallyahardsecret"
+  expiration: "5m"
+otp:
+  length: 4
+  expiration: "3m"

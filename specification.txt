@@ -1,0 +1,17 @@
+//Routes
+    /signup 
+        -phone
+        -firtsname
+        -lastname
+        -password
+        --------------
+        -send sms to verify the number
+        -check if correct
+    /login
+        -number
+        -password
+
+        -generete jwt
+
+    /loguot
+        -disable jwt
