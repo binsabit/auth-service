@@ -13,3 +13,7 @@ func (app *Application) GetExpirationTimeFromJWT(ctx *fiber.Ctx, key string) tim
 	res := claims[key].(time.Duration)
 	return res
 }
+
+func (app *Application) GenereteJWT() {
+
+}

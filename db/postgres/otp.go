@@ -32,7 +32,7 @@ func NewPGXOtp(conn *pgxpool.Pool, expires time.Duration, length int) PGXOtp {
 
 func (psql PGXOtp) CreateOtp(ctx context.Context, phone string) (string, error) {
 	// query := psql.Conn.Prepare(`Insert `)
-	exist, err := psql.Exists(ctx, phone)
+	exist, err := psql.Sent(ctx, phone)
 	if err != nil || exist {
 		return "", err
 	}
@@ -48,7 +48,11 @@ func (psql PGXOtp) CreateOtp(ctx context.Context, phone string) (string, error) 
 	return code, nil
 }
 
-func (psql PGXOtp) Exists(ctx context.Context, phone string) (bool, error) {
+func (psql PGXOtp) Exists() (bool, error) {
+
+}
+
+func (psql PGXOtp) Sent(ctx context.Context, phone string) (bool, error) {
 	query := `SELECT id FROM otps WHERE phone=$1 AND expires_at>$2`
 
 	row := psql.Conn.QueryRow(ctx, query, phone, time.Now())

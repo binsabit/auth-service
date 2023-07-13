@@ -25,15 +25,15 @@ func (psql PGXToken) AddToAuthTable(ctx context.Context, user_id int, auth_id st
 	return err
 }
 
-func (psql PGXToken) DeleteFromAuthTable(ctx context.Context, auth_id, user_id int) error {
-	query := `DELETE FROM auth_table WHERE user_id = $1 && auth_id = $2`
+func (psql PGXToken) DeleteFromAuthTable(ctx context.Context, user_id int, auth_id string) error {
+	query := `DELETE FROM auth_table WHERE user_id = $1 AND auth_id = $2`
 
-	_, err := psql.Conn.Exec(ctx, query, auth_id, user_id)
+	_, err := psql.Conn.Exec(ctx, query, user_id, auth_id)
 
 	return err
 }
 
-func (psql PGXToken) DeleteIdExpired(ctx context.Context) error {
+func (psql PGXToken) DeleteIfExpired(ctx context.Context) error {
 	query := `DELETE FROM auth_table WHERE expires_at<$1`
 
 	_, err := psql.Conn.Exec(ctx, query, time.Now())
@@ -41,8 +41,8 @@ func (psql PGXToken) DeleteIdExpired(ctx context.Context) error {
 	return err
 }
 
-func (psql PGXToken) IsAuthorized(ctx context.Context, user_id, auth_id int) bool {
-	query := `SELECT id FROM auth_table WHERE user_id = $1 auth_id = $2 AND expires_at<=$3`
+func (psql PGXToken) IsAuthorized(ctx context.Context, user_id int, auth_id string) bool {
+	query := `SELECT id FROM auth_table WHERE user_id = $1 AND auth_id = $2 AND expires_at>=$3`
 
 	var id int
 

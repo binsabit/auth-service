@@ -16,6 +16,7 @@ type Config struct {
 	HTTPServer HTTPServer `mapstructure:"http"`
 	JWT        JWT        `mapstructure:"jwt"`
 	OTP        OTP        `mapstructure:"otp"`
+	Smsc       Smsc       `mapstructure:"smsc"`
 }
 
 type HTTPServer struct {
@@ -30,6 +31,11 @@ type JWT struct {
 type OTP struct {
 	Length  int           `mapstructure:"length"`
 	Expires time.Duration `mapstructure:"expiration"`
+}
+
+type Smsc struct {
+	Login    string `mapsstructure:"login"`
+	Password string `mapstructure:"password"`
 }
 
 type Storage struct {

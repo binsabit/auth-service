@@ -22,3 +22,6 @@ jwt:
 otp:
   length: 4
   expiration: "3m"
+smsc:
+  login: "er020901"
+  password: "frthrt11!"
