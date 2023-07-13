@@ -18,27 +18,35 @@ func NewPGXToken(conn *pgxpool.Pool) PGXToken {
 	}
 }
 
-func (psql PGXOtp) AddToBlackList(ctx context.Context, token string, expiresAt time.Time) error {
-	query := `INSERT INTO jwt_blacklist (token, expires_at) VALUES ($1,$2)`
-
-	_, err := psql.Conn.Exec(ctx, query, token, expiresAt)
+func (psql PGXToken) AddToAuthTable(ctx context.Context, user_id int, auth_id string, expiresAt time.Time) error {
+	query := `INSERT INTO auth_table (user_id, auth_id, expires_at) VALUES ($1,$2,$3)`
+	_, err := psql.Conn.Exec(ctx, query, user_id, auth_id, expiresAt)
 
 	return err
 }
-func (psql PGXOtp) DeleteFromBlackList(ctx context.Context, token string) error {
-	query := `DELETE FROM jwt_blacklist WHERE token = $1`
 
-	_, err := psql.Conn.Exec(ctx, query, token)
+func (psql PGXToken) DeleteFromAuthTable(ctx context.Context, auth_id, user_id int) error {
+	query := `DELETE FROM auth_table WHERE user_id = $1 && auth_id = $2`
+
+	_, err := psql.Conn.Exec(ctx, query, auth_id, user_id)
 
 	return err
-
 }
-func (psql PGXOtp) IsInBlackList(ctx context.Context, token string) bool {
-	query := `SELECT id FROM jwt_blacklist WHERE token = $1`
+
+func (psql PGXToken) DeleteIdExpired(ctx context.Context) error {
+	query := `DELETE FROM auth_table WHERE expires_at<$1`
+
+	_, err := psql.Conn.Exec(ctx, query, time.Now())
+
+	return err
+}
+
+func (psql PGXToken) IsAuthorized(ctx context.Context, user_id, auth_id int) bool {
+	query := `SELECT id FROM auth_table WHERE user_id = $1 auth_id = $2 AND expires_at<=$3`
 
 	var id int
 
-	row := psql.Conn.QueryRow(ctx, query, token)
+	row := psql.Conn.QueryRow(ctx, query, user_id, auth_id, time.Now())
 
 	err := row.Scan(&id)
 

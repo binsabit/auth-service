@@ -35,24 +35,28 @@ func (psql PGXUser) CreateUser(ctx context.Context, args ...string) error {
 	return nil
 }
 
-func (psql PGXUser) CheckCredentials(ctx context.Context, phone, password string) error {
-	query := `SELECT password FROM users WHERE phone = $1`
+func (psql PGXUser) CheckCredentials(ctx context.Context, phone, password string) (int, error) {
+	query := `SELECT id, password FROM users WHERE phone = $1`
 
 	row := psql.Conn.QueryRow(ctx, query, phone)
-	var p string
-	err := row.Scan(&p)
+	var user struct {
+		id       int
+		password []byte
+	}
+	err := row.Scan(&user.id, &user.password)
+
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return ErrorNotFound
+			return 0, ErrorNotFound
 		}
-		return err
+		return 0, err
 	}
 
-	if string(genereteHash(password)) != string(p) {
-		return ErrorInvalidCredentials
+	if string(genereteHash(password)) != string(user.password) {
+		return 0, ErrorInvalidCredentials
 	}
 
-	return nil
+	return user.id, nil
 
 }
 func (psql PGXUser) LogoutUser(ctx context.Context, id int) error {

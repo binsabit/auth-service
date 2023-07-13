@@ -11,16 +11,18 @@ import (
 type Application struct {
 	User   db.UserStorage
 	Opt    db.OtpStorage
+	Auth   db.TokenStorage
 	Config config.Config
 	Router *fiber.App
 }
 
-func NewApplication(user db.UserStorage, opt db.OtpStorage, config config.Config, router *fiber.App) *Application {
+func NewApplication(user db.UserStorage, opt db.OtpStorage, auth db.TokenStorage, config config.Config, router *fiber.App) *Application {
 	return &Application{
 		User:   user,
 		Opt:    opt,
 		Router: router,
 		Config: config,
+		Auth:   auth,
 	}
 }
 

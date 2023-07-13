@@ -26,6 +26,7 @@ func main() {
 	pool := postgres.CreateConnection(context.Background(), dsn)
 	usersStore := postgres.NewPGXuser(pool)
 	optStore := postgres.NewPGXOtp(pool, config.OTP.Expires, config.OTP.Length)
+	authStore := postgres.NewPGXToken(pool)
 
 	//init router
 	router := fiber.New(fiber.Config{
@@ -33,7 +34,7 @@ func main() {
 		JSONDecoder: sonic.Unmarshal,
 	})
 
-	App := app.NewApplication(usersStore, optStore, config, router)
+	App := app.NewApplication(usersStore, optStore, authStore, config, router)
 
 	App.RunApp()
 }

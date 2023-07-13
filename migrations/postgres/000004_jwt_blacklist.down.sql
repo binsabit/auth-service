@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS jwt_blacklist;
+DROP TABLE IF EXISTS auth_table;

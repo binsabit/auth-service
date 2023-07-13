@@ -26,9 +26,10 @@ type Token struct {
 }
 
 type TokenStorage interface {
-	AddToBlackList(context.Context, string) error
-	DeleteFromBlackList(context.Context, string) error
-	IsInBlackList(context.Context, string) bool
+	AddToAuthTable(context.Context, int, string, time.Time) error
+	DeleteFromAuthTable(context.Context, int, int) error
+	DeleteIdExpired(context.Context) error
+	IsAuthorized(context.Context, int, int) bool
 }
 
 type OtpStorage interface {
@@ -38,6 +39,6 @@ type OtpStorage interface {
 
 type UserStorage interface {
 	CreateUser(context.Context, ...string) error
-	CheckCredentials(context.Context, string, string) error
+	CheckCredentials(context.Context, string, string) (int, error)
 	LogoutUser(context.Context, int) error
 }

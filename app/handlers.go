@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/binsabit/auth-service/db/postgres"
@@ -10,6 +11,7 @@ import (
 	"github.com/binsabit/auth-service/util/validator"
 	"github.com/gofiber/fiber/v2"
 	jtoken "github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 //OTP = one-time-password
@@ -101,13 +103,28 @@ func (app *Application) Login(ctx *fiber.Ctx) error {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 	user.Phone = phone
-
-	if err := app.User.CheckCredentials(context.Background(), user.Phone, user.Password); err != nil {
+	log.Println("1")
+	userID, err := app.User.CheckCredentials(context.Background(), user.Phone, user.Password)
+	if err != nil {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
+	log.Println("2", userID)
+
+	authID := uuid.New().String()
+	expiratesAt := time.Now().Add(app.Config.JWT.Expires)
+	log.Println(authID, expiratesAt)
+
+	err = app.Auth.AddToAuthTable(context.Background(), userID, authID, expiratesAt)
+
+	if err != nil {
+		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
+	}
+	log.Println("3")
 
 	claims := jtoken.MapClaims{
-		"exp": time.Now().Add(app.Config.JWT.Expires).Unix(),
+		"user_id":   userID,
+		"auth_uuid": authID,
+		"exp":       expiratesAt.Unix(),
 	}
 
 	token := jtoken.NewWithClaims(jtoken.SigningMethodHS256, claims)
@@ -125,9 +142,9 @@ func (app *Application) Login(ctx *fiber.Ctx) error {
 
 func (app *Application) Logout(ctx *fiber.Ctx) error {
 
-	app.GetExpirationTimeFromJWT(ctx, "exp")
+	// expires := app.GetExpirationTimeFromJWT(ctx, "exp")
 
-	ctx.SendStatus(fiber.StatusOK)
+	// ctx.SendStatus(fiber.StatusOK)
 
 	return nil
 }
