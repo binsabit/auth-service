@@ -8,7 +8,6 @@ import (
 	"github.com/binsabit/auth-service/app"
 	"github.com/binsabit/auth-service/config"
 	"github.com/binsabit/auth-service/db/postgres"
-	"github.com/binsabit/auth-service/sms"
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,8 +17,6 @@ func main() {
 	config := config.MustLoadConfig()
 
 	log.Println(config)
-
-	smsc := sms.NewSmsSender(config.Smsc.Login, config.Smsc.Password)
 
 	storageConfig := config.Storage
 	dsn := fmt.Sprintf("%s://%s:%s@%s:%d/%s?sslmode=%s",
@@ -38,7 +35,7 @@ func main() {
 		JSONDecoder: sonic.Unmarshal,
 	})
 
-	App := app.NewApplication(usersStore, optStore, authStore, smsc, config, router)
+	App := app.NewApplication(usersStore, optStore, authStore, config, router)
 
 	App.RunApp()
 }

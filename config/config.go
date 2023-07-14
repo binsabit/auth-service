@@ -16,7 +16,6 @@ type Config struct {
 	HTTPServer HTTPServer `mapstructure:"http"`
 	JWT        JWT        `mapstructure:"jwt"`
 	OTP        OTP        `mapstructure:"otp"`
-	Smsc       Smsc       `mapstructure:"smsc"`
 }
 
 type HTTPServer struct {

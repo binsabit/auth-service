@@ -11,17 +11,19 @@ import (
 	jtoken "github.com/golang-jwt/jwt/v4"
 )
 
-//OTP = one-time-password
-func (app *Application) GetOTP(ctx *fiber.Ctx) error {
+// OTP = one-time-password
+func (app Application) GetOTP(ctx *fiber.Ctx) error {
 	var reqOtp getOtp
 
-	err := validator.ValidateBody(ctx, &reqOtp)
-	if err != nil {
+	if err := json.ReadJSON(ctx, &reqOtp); err != nil {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 
-	err = validator.ValidatePhoneNumber(reqOtp.Phone)
-	if err != nil {
+	if err := validator.ValidateStruct(&reqOtp); err != nil {
+		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
+	}
+
+	if err := validator.ValidatePhoneNumber(reqOtp.Phone); err != nil {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 
@@ -32,17 +34,17 @@ func (app *Application) GetOTP(ctx *fiber.Ctx) error {
 		}
 		return json.ErrorJSON(ctx, err, fiber.StatusInternalServerError)
 	}
-	_, err = app.Smsc.Client.Send(code, []string{reqOtp.Phone})
-	if err != nil {
-		return json.ErrorJSON(ctx, err, fiber.StatusInternalServerError)
-	}
 	return json.WriteJSON(ctx, fiber.StatusOK, resOpt{Code: code})
 }
 
-func (app *Application) VerifyOTP(ctx *fiber.Ctx) error {
+func (app Application) VerifyOTP(ctx *fiber.Ctx) error {
 
 	var verReq verifyOtp
-	if err := validator.ValidateBody(ctx, &verReq); err != nil {
+	if err := json.ReadJSON(ctx, &verReq); err != nil {
+		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
+	}
+
+	if err := validator.ValidateStruct(&verReq); err != nil {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 

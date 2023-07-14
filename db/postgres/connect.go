@@ -18,5 +18,6 @@ func CreateConnection(ctx context.Context, dsn string) *pgxpool.Pool {
 	if err != nil {
 		log.Fatalf("could not ping database:%s \n error:%v", dsn, err)
 	}
+
 	return conn
 }

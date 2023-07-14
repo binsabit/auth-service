@@ -12,16 +12,20 @@ import (
 	"github.com/google/uuid"
 )
 
-func (app *Application) Test(ctx *fiber.Ctx) error {
+func (app Application) Test(ctx *fiber.Ctx) error {
 	ctx.SendStatus(fiber.StatusOK)
 	return nil
 }
 
-func (app *Application) Signup(ctx *fiber.Ctx) error {
+func (app Application) Signup(ctx *fiber.Ctx) error {
 
 	var req signupRequest
 
-	if err := validator.ValidateBody(ctx, &req); err != nil {
+	if err := json.ReadJSON(ctx, &req); err != nil {
+		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
+	}
+
+	if err := validator.ValidateStruct(&req); err != nil {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 
@@ -42,12 +46,16 @@ func (app *Application) Signup(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (app *Application) Login(ctx *fiber.Ctx) error {
+func (app Application) Login(ctx *fiber.Ctx) error {
 
 	var user loginRequest
 
-	err := validator.ValidateBody(ctx, &user)
-	if err != nil {
+	if err := json.ReadJSON(ctx, &user); err != nil {
+		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
+
+	}
+
+	if err := validator.ValidateStruct(&user); err != nil {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 
@@ -88,7 +96,7 @@ func (app *Application) Login(ctx *fiber.Ctx) error {
 	})
 }
 
-func (app *Application) Logout(ctx *fiber.Ctx) error {
+func (app Application) Logout(ctx *fiber.Ctx) error {
 	user := ctx.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	user_id := int(claims["user_id"].(float64))

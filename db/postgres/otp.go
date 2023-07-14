@@ -49,7 +49,7 @@ func (psql PGXOtp) CreateOtp(ctx context.Context, phone string) (string, error) 
 }
 
 func (psql PGXOtp) Exists() (bool, error) {
-
+	return false, nil
 }
 
 func (psql PGXOtp) Sent(ctx context.Context, phone string) (bool, error) {

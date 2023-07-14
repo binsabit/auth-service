@@ -8,6 +8,10 @@ type jsonResponse struct {
 	Data    any    `json:"data"`
 }
 
+func ReadJSON(ctx *fiber.Ctx, data any) error {
+	return ctx.BodyParser(data)
+}
+
 func WriteJSON(ctx *fiber.Ctx, status int, data any) error {
 	return ctx.Status(status).JSON(jsonResponse{Status: status, Message: "success", Data: data})
 }
