@@ -38,13 +38,14 @@ type Smsc struct {
 }
 
 type Storage struct {
-	Driver   string `mapstructure:"driver"`
-	User     string `mapstructure:"user"`
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Password string `mapstructure:"password"`
-	DBname   string `mapstructure:"dbname"`
-	SSLMode  string `mapstructure:"sslmode"`
+	MigrationFile string `mapstructure:"migrationfile"`
+	Driver        string `mapstructure:"driver"`
+	User          string `mapstructure:"user"`
+	Host          string `mapstructure:"host"`
+	Port          int    `mapstructure:"port"`
+	Password      string `mapstructure:"password"`
+	DBname        string `mapstructure:"dbname"`
+	SSLMode       string `mapstructure:"sslmode"`
 }
 
 func MustLoadConfig() Config {

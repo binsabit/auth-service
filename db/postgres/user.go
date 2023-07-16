@@ -27,7 +27,7 @@ func (psql PGXUser) CreateUser(ctx context.Context, args ...string) error {
 	query := `INSERT INTO users (phone, password, firstname, lastname) 
 			VALUES ($1,$2,$3,$4)
 	`
-	_, err := psql.Conn.Exec(ctx, query, args[0], genereteHash(args[1]), args[2], args[3])
+	_, err := psql.Conn.Exec(ctx, query, args[0], GenereteHash(args[1]), args[2], args[3])
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (psql PGXUser) CheckCredentials(ctx context.Context, phone, password string
 		return 0, err
 	}
 
-	if string(genereteHash(password)) != string(user.password) {
+	if string(GenereteHash(password)) != string(user.password) {
 		return 0, ErrorInvalidCredentials
 	}
 
@@ -64,7 +64,7 @@ func (psql PGXUser) LogoutUser(ctx context.Context, id int) error {
 
 }
 
-func genereteHash(text string) []byte {
+func GenereteHash(text string) []byte {
 	h := sha256.New()
 	h.Write([]byte(text))
 	res := h.Sum(nil)

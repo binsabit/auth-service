@@ -1,9 +1,10 @@
 version: "1.0.0"
 env: "local" 
 storage: 
+  migrationfile:  "file://migrations/postgres"
   driver:   "postgres"
   user:     "yerda"
-  password: "password"
+  password: "password:"
   host:     "db"
   port:     5432
   dbname:   "dbauth"

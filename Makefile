@@ -6,11 +6,11 @@ migration:
 
 migrate-up:
 	migrate -path migrations/postgres \
-		-database "postgresql://yerda:password@db:5432/dbauth?sslmode=disable" -verbose up
+		-database "postgresql://yerda:postgres@localhost:5432/dbauth?sslmode=disable" -verbose up
 migrate-down:
 	migrate -path migrations/postgres \
-		-database "postgresql://yerda:password@localhost:5432/dbauth?sslmode=disable" -verbose down
+		-database "postgresql://yerda:postgres@localhost:5432/dbauth?sslmode=disable" -verbose down
 migrate-force:
 	@read -p "Enter version to force :" version;\
 		migrate -path migrations/postgres \
-			-database "postgresql://yerda:password@localhost:5432/dbauth?sslmode=disable" -verbose force $$version
+			-database "postgresql://yerda:postgres@localhost:5432/dbauth?sslmode=disable" -verbose force $$version

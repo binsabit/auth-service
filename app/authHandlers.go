@@ -1,7 +1,6 @@
 package app
 
 import (
-	"log"
 	"time"
 
 	"github.com/binsabit/auth-service/util/json"
@@ -9,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	jtoken "github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 )
 
 func (app Application) Test(ctx *fiber.Ctx) error {
@@ -67,20 +65,9 @@ func (app Application) Login(ctx *fiber.Ctx) error {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 
-	authID := uuid.New().String()
-	expiratesAt := time.Now().Add(app.Config.JWT.Expires)
-	log.Println(authID, expiratesAt)
-
-	err = app.Auth.AddToAuthTable(ctx.Context(), userID, authID, expiratesAt)
-
-	if err != nil {
-		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
-	}
-
 	claims := jtoken.MapClaims{
-		"user_id":   userID,
-		"auth_uuid": authID,
-		"exp":       expiratesAt.Unix(),
+		"user_id": userID,
+		"exp":     time.Now().Add(app.Config.JWT.Expires).Unix(),
 	}
 
 	token := jtoken.NewWithClaims(jtoken.SigningMethodHS256, claims)
@@ -89,6 +76,10 @@ func (app Application) Login(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
+	}
+	err = app.Auth.AddToAuthTable(ctx.Context(), userID, t)
+	if err != nil {
+		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
 
 	return ctx.Status(fiber.StatusAccepted).JSON(fiber.Map{
@@ -100,9 +91,8 @@ func (app Application) Logout(ctx *fiber.Ctx) error {
 	user := ctx.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	user_id := int(claims["user_id"].(float64))
-	auth_id := claims["auth_uuid"].(string)
 
-	err := app.Auth.DeleteFromAuthTable(ctx.Context(), user_id, auth_id)
+	err := app.Auth.DeleteFromAuthTable(ctx.Context(), user_id)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

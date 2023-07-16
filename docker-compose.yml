@@ -4,7 +4,7 @@ services:
   web:
       build: .
       env_file:
-        - .env
+        - .env  
       ports:
         - 8080:8080
       volumes:
@@ -20,18 +20,4 @@ services:
         - POSTGRES_PASSWORD=${DB_PASSWORD}
         - POSTGRES_DB=${DB_NAME}
       ports:
-        - 5432:5432
-  migrate:
-    image: migrate/migrate:latest
-    volumes:
-      - ./db/migrations:/migrations
-    entrypoint:
-      [ "migrate",
-      "-path",
-      "/migrations",
-      "/-database",
-      "postgres://yerda:password@db:5432/authdb?sslmode=disable",
-     ]
-    command: ["up"]
-    depends_on:
-      - db
+        - 1234:5432

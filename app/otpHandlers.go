@@ -8,7 +8,6 @@ import (
 	"github.com/binsabit/auth-service/util/json"
 	"github.com/binsabit/auth-service/util/validator"
 	"github.com/gofiber/fiber/v2"
-	jtoken "github.com/golang-jwt/jwt/v4"
 )
 
 // OTP = one-time-password
@@ -58,22 +57,8 @@ func (app Application) VerifyOTP(ctx *fiber.Ctx) error {
 	if err != nil || !verified {
 		return json.ErrorJSON(ctx, err, fiber.StatusBadRequest)
 	}
-	claims := jtoken.MapClaims{
-		"phone": verReq.Phone,
-		"exp":   app.Config.OTP.Expires,
-	}
 
-	token := jtoken.NewWithClaims(jtoken.SigningMethodHS256, claims)
-	t, err := token.SignedString([]byte(app.Config.JWT.Secret))
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return ctx.Status(fiber.StatusAccepted).JSON(fiber.Map{
-		"token": t,
-	})
+	return ctx.SendStatus(fiber.StatusOK)
 
 }
 

@@ -26,8 +26,8 @@ type Token struct {
 }
 
 type TokenStorage interface {
-	AddToAuthTable(context.Context, int, string, time.Time) error
-	DeleteFromAuthTable(context.Context, int, string) error
+	AddToAuthTable(context.Context, int, string) error
+	DeleteFromAuthTable(context.Context, int) error
 	DeleteIfExpired(context.Context) error
 	IsAuthorized(context.Context, int, string) bool
 }

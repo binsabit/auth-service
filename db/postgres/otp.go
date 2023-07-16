@@ -48,10 +48,6 @@ func (psql PGXOtp) CreateOtp(ctx context.Context, phone string) (string, error) 
 	return code, nil
 }
 
-func (psql PGXOtp) Exists() (bool, error) {
-	return false, nil
-}
-
 func (psql PGXOtp) Sent(ctx context.Context, phone string) (bool, error) {
 	query := `SELECT id FROM otps WHERE phone=$1 AND expires_at>$2`
 

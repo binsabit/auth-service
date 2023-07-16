@@ -25,6 +25,9 @@ func main() {
 
 	//init storage
 	pool := postgres.CreateConnection(context.Background(), dsn)
+
+	postgres.RunMigrations(config.Storage.MigrationFile, dsn)
+
 	usersStore := postgres.NewPGXuser(pool)
 	optStore := postgres.NewPGXOtp(pool, config.OTP.Expires, config.OTP.Length)
 	authStore := postgres.NewPGXToken(pool)

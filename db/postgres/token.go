@@ -18,17 +18,17 @@ func NewPGXToken(conn *pgxpool.Pool) PGXToken {
 	}
 }
 
-func (psql PGXToken) AddToAuthTable(ctx context.Context, user_id int, auth_id string, expiresAt time.Time) error {
-	query := `INSERT INTO auth_table (user_id, auth_id, expires_at) VALUES ($1,$2,$3)`
-	_, err := psql.Conn.Exec(ctx, query, user_id, auth_id, expiresAt)
+func (psql PGXToken) AddToAuthTable(ctx context.Context, user_id int, token string) error {
+	query := `INSERT INTO auth_table (user_id, token) VALUES ($1,$2)`
+	_, err := psql.Conn.Exec(ctx, query, user_id, GenereteHash(token))
 
 	return err
 }
 
-func (psql PGXToken) DeleteFromAuthTable(ctx context.Context, user_id int, auth_id string) error {
+func (psql PGXToken) DeleteFromAuthTable(ctx context.Context, user_id int) error {
 	query := `DELETE FROM auth_table WHERE user_id = $1 AND auth_id = $2`
 
-	_, err := psql.Conn.Exec(ctx, query, user_id, auth_id)
+	_, err := psql.Conn.Exec(ctx, query, user_id)
 
 	return err
 }
@@ -41,22 +41,22 @@ func (psql PGXToken) DeleteIfExpired(ctx context.Context) error {
 	return err
 }
 
-func (psql PGXToken) IsAuthorized(ctx context.Context, user_id int, auth_id string) bool {
-	query := `SELECT id FROM auth_table WHERE user_id = $1 AND auth_id = $2 AND expires_at>=$3`
+func (psql PGXToken) IsAuthorized(ctx context.Context, user_id int, testToken string) bool {
+	query := `SELECT token FROM auth_table WHERE user_id = $1`
 
-	var id int
+	var token []byte
 
-	row := psql.Conn.QueryRow(ctx, query, user_id, auth_id, time.Now())
+	row := psql.Conn.QueryRow(ctx, query, user_id)
 
-	err := row.Scan(&id)
+	err := row.Scan(&token)
 
 	if err == pgx.ErrNoRows {
 		return false
 	}
 
-	if id > 0 {
+	if string(token) == string(GenereteHash(testToken)) {
 		return true
 	}
 
-	return err == nil
+	return false
 }

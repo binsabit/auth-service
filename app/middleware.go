@@ -18,9 +18,8 @@ func (app *Application) Authorize(ctx *fiber.Ctx) error {
 	user := ctx.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	user_id := int(claims["user_id"].(float64))
-	auth_id := claims["auth_uuid"].(string)
 
-	ok := app.Auth.IsAuthorized(context.Background(), user_id, auth_id)
+	ok := app.Auth.IsAuthorized(context.Background(), user_id, user.Raw)
 
 	if ok {
 		return ctx.Next()
